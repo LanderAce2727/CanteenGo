@@ -1,0 +1,41 @@
+# Development verification — 2026-11-14
+
+Synthetic data only. These are development checks, not the outside-rater evaluation.
+
+## Python API
+
+Command, from backend: `.venv\\Scripts\\python.exe -m pytest -q`
+
+Initial run: 35 passed; two holiday tests failed because mocking httpx.Client.get
+also intercepted the test client's GET convenience method.
+The tests were corrected to use the client's request method, without changing the service implementation.
+
+Corrective run: `.venv\\Scripts\\python.exe -m pytest -q -k holiday`
+Result: 2 passed, 35 deselected.
+
+All 37 test cases have passed across these runs. The test runner emits a dependency warning:
+Starlette currently deprecates its httpx-based test client in favor of httpx2.
+This does not prevent the tests from running.
+
+Covered:
+- Health, missing authentication, student registration and duplicate usernames.
+- Privileged-role injection, invalid passwords and SQL-injection login input.
+- Salted password verification, bad login rate limiting, token expiry and logout revocation.
+- Server pricing, forbidden client prices, quantity allow-list and unknown/duplicate foods.
+- Checkout idempotency and conflicting reuse of request IDs.
+- Student order isolation and staff/admin permissions.
+- Ordered status transitions and audit entries.
+- Transaction rollback and concurrent stock reservation.
+- Masked CSV/JSON/XML reports and query parameter allow-lists.
+- Persistence after restarting the API.
+- Weekend/holiday exclusion and explicit upstream failure.
+
+## Android
+
+Command: `:app:assembleDebug :app:testDebugUnitTest`
+Build succeeded. Unit tests: 3 passed, 0 skipped, 0 failed.
+
+The existing tests exercise cart math and the local demo order flow.
+No connected-device or Android-to-server UI test has been run yet.
+Manual verification should follow backend/README.md with separate student, staff and admin accounts.
+Signed-import mapping tests and QR security tests require their respective future implementations.

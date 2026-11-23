@@ -1,0 +1,74 @@
+[
+  {
+    "id": "chicken",
+    "name": "Chicken adobo",
+    "description": "Savory chicken with steamed rice.",
+    "category": "Meals",
+    "price_centavos": 6500,
+    "emoji": "🍗",
+    "stock": 100
+  },
+  {
+    "id": "sisig",
+    "name": "Sisig rice bowl",
+    "description": "Pork sisig over fluffy rice.",
+    "category": "Meals",
+    "price_centavos": 7500,
+    "emoji": "🍲",
+    "stock": 100
+  },
+  {
+    "id": "vegetables",
+    "name": "Vegetable rice bowl",
+    "description": "Seasonal vegetables with rice.",
+    "category": "Meals",
+    "price_centavos": 4500,
+    "emoji": "🥗",
+    "stock": 100
+  },
+  {
+    "id": "pancit",
+    "name": "Pancit canton",
+    "description": "Stir-fried noodles and vegetables.",
+    "category": "Snacks",
+    "price_centavos": 3500,
+    "emoji": "🍜",
+    "stock": 100
+  },
+  {
+    "id": "sandwich",
+    "name": "Egg sandwich",
+    "description": "Fresh egg filling in soft bread.",
+    "category": "Snacks",
+    "price_centavos": 3000,
+    "emoji": "🥪",
+    "stock": 100
+  },
+  {
+    "id": "banana",
+    "name": "Banana cue",
+    "description": "Sweet caramelized banana skewers.",
+    "category": "Snacks",
+    "price_centavos": 2000,
+    "emoji": "🍌",
+    "stock": 100
+  },
+  {
+    "id": "tea",
+    "name": "Iced tea",
+    "description": "Refreshing chilled lemon tea.",
+    "category": "Drinks",
+    "price_centavos": 2000,
+    "emoji": "🥤",
+    "stock": 100
+  },
+  {
+    "id": "water",
+    "name": "Bottled water",
+    "description": "Cool drinking water, 500 ml.",
+    "category": "Drinks",
+    "price_centavos": 1500,
+    "emoji": "💧",
+    "stock": 100
+  }
+]
