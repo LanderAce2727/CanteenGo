@@ -60,9 +60,11 @@ After Render says Live, on the phone open:
 https://YOUR-ACTUAL-SERVICE.onrender.com/api/health
 
 Wait for {"status":"ok","service":"CanteenGo"}.
-In the app enter only https://YOUR-ACTUAL-SERVICE.onrender.com as Server address.
-Do not append /api or /api/health. Use HTTPS.
-Register/sign in. The existing installed APK can use this address without rebuilding.
+The latest Android source uses the verified HTTPS service URL automatically via
+ServerConfig.BASE_URL; users only enter credentials. Rebuild/install the updated APK
+for this UI change. Older APKs still require entering the HTTPS base URL manually,
+without /api or /api/health. If the deployed hostname changes, update ServerConfig.kt
+and rebuild the app.
 The computer can be off once the cloud backend is deployed.
 
 ## Staff/admin creation on the Free plan

@@ -11,11 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.canteengo.BuildConfig
 
 @Composable
-fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, String, Boolean) -> Unit, onBack: () -> Unit) {
-    var address by rememberSaveable { mutableStateOf(if (BuildConfig.DEBUG) "http://10.0.2.2:8000" else "") }
+fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, Boolean) -> Unit, onBack: () -> Unit) {
     var username by rememberSaveable { mutableStateOf("") }
     // Password is deliberately not saved to the activity state.
     var password by remember { mutableStateOf("") }
@@ -24,13 +22,8 @@ fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, String, Boolea
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).imePadding().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Connect to CanteenGo", style = MaterialTheme.typography.headlineMedium)
+        Text(if (registering) "Create your account" else "Sign in to CanteenGo", style = MaterialTheme.typography.headlineMedium)
         Text("Sign in to save orders and share updates with the canteen.")
-        OutlinedTextField(address, { address = it }, label = { Text("Server address") },
-            singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-            modifier = Modifier.fillMaxWidth())
-        if (BuildConfig.DEBUG) Text("Emulator: http://10.0.2.2:8000. Phone: use your computer’s Wi-Fi IP address.",
-            style = MaterialTheme.typography.bodySmall)
         OutlinedTextField(username, { username = it }, label = { Text("Username") },
             supportingText = { Text("3–40 lowercase letters, numbers, dots, underscores or hyphens") },
             singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -42,8 +35,8 @@ fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, String, Boolea
         Text(if (registering) "New accounts are students. Staff and administrator accounts are created by the server administrator."
             else "Your account determines which features you can access.")
         Button(
-            onClick = { onConnect(address, username, password, registering) },
-            enabled = !busy && address.isNotBlank() && username.isNotBlank() && password.length in 12..128,
+            onClick = { onConnect(username, password, registering) },
+            enabled = !busy && username.isNotBlank() && password.length in 12..128,
             modifier = Modifier.fillMaxWidth()
         ) { Text(if (registering) "Create student account & sign in" else "Sign in") }
         TextButton(onClick = { registering = !registering }, enabled = !busy) {

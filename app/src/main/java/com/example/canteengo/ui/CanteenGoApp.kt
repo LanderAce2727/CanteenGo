@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.canteengo.ui.navigation.AppDestination
+import com.example.canteengo.data.ServerConfig
 import com.example.canteengo.ui.navigation.AppDestination.*
 import com.example.canteengo.ui.screens.*
 import kotlinx.coroutines.launch
@@ -113,8 +114,8 @@ fun CanteenGoApp(model: CanteenViewModel) {
                 )
             }
             Box(Modifier.widthIn(max = 1100.dp).weight(1f).fillMaxWidth()) {
-                if (connecting) ServerSignInScreen(model.busy, onConnect = { address, name, password, register ->
-                    model.connect(address, name, password, register) {
+                if (connecting) ServerSignInScreen(model.busy, onConnect = { name, password, register ->
+                    model.connect(ServerConfig.BASE_URL, name, password, register) {
                         selectedOrder = null
                         connecting = false
                         route = accountHome()
