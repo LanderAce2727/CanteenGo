@@ -1,6 +1,6 @@
 # CanteenGo Python backend
 
-A working first version of the cash-on-pickup service. Uses Python 3.11+, FastAPI, and SQLite.
+A working first version of the cash-on-pickup service. Uses Python 3.11+, FastAPI, SQLite locally and PostgreSQL for cloud hosting.
 All starter menu records are synthetic. This is an implementation foundation, not the completed IT312 submission.
 
 ## Setup (PowerShell, from the backend folder)
@@ -62,6 +62,14 @@ Alternatively run the backend with `--host 0.0.0.0`, use a private Wi-Fi network
 and enter `http://<computer-Wi-Fi-IP>:8000`. Windows Firewall may need a private-network rule.
 Do not disable the firewall. HTTPS is required by release builds; no trust-all certificate workaround is installed.
 
+## Hosted backend
+
+For an HTTPS server that phones can reach over the internet, see
+[the Render deployment guide](../docs/DEPLOYMENT.md) and the root `render.yaml`.
+The configuration uses Render Free and an external Neon Free PostgreSQL database.
+Set DATABASE_URL privately in Render; no persistent Render disk is used.
+It is prepared but has not been deployed or verified in the cloud.
+
 ## Configuration
 
 Optionally create an ignored `.env` file beside this README, using `.env.example` as a template.
@@ -69,7 +77,9 @@ Environment variables take precedence over the file.
 
 | Variable | Meaning |
 | --- | --- |
-| CANTEENGO_DB | SQLite path; defaults to data/canteengo.sqlite3 relative to server working directory |
+| CANTEENGO_DB | Local SQLite path; defaults to data/canteengo.sqlite3 |
+| DATABASE_URL | PostgreSQL connection URL; overrides CANTEENGO_DB; required on Render |
+| TEST_DATABASE_URL | Dedicated PostgreSQL test database; never use production for integration tests |
 
 Always run both the CLI and server from the same backend folder, with the same configuration.
 
@@ -79,7 +89,9 @@ Always run both the CLI and server from the same backend folder, with the same c
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Tests use temporary databases and synthetic identities; they do not change the running database.
+Default tests use temporary SQLite databases and synthetic identities. PostgreSQL cases
+skip unless TEST_DATABASE_URL points to a dedicated test database; they create and drop
+isolated schemas there. Never use the production URL for these tests.
 The holiday tests mock the external service. They cover weekend/holiday exclusion and service failure,
 not live upstream availability.
 
@@ -90,7 +102,7 @@ not live upstream availability.
 - Student-only registration. Staff/admin roles are provisioned locally.
 - Student order isolation and server-enforced staff/admin access.
 - Strict request bodies, quantity bounds and query parameter allow-lists.
-- Parameterized SQLite queries; request values are never concatenated into SQL.
+- Parameterized SQLite/PostgreSQL queries; request values are never concatenated into SQL.
 - Server-side pricing, atomic stock reservations, sequential status changes, and audit records.
 - Idempotent checkout: retrying the same request UUID does not duplicate an order.
 - Masked student identifiers and no pickup names in reports.

@@ -1,0 +1,18 @@
+# Render Free + external Neon PostgreSQL. No local database or paid disk.
+services:
+  - type: web
+    name: canteengo-api
+    runtime: python
+    rootDir: backend
+    region: singapore
+    plan: free
+    numInstances: 1
+    autoDeployTrigger: 'off'
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn canteengo.app:app --host 0.0.0.0 --port $PORT --workers 1
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.13.14"
+      - key: DATABASE_URL
+        sync: false
