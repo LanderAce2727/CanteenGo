@@ -4,7 +4,15 @@
 
 The user wants brief instructions, one step at a time, and wants to save chat credits.
 Read this file before repeating discovery. Inspect Git status before making edits.
-The next task is phone-to-cloud verification, not a backend rewrite.
+Latest work: collaborator frontend dc70bc5 integrated locally on
+integration/frontend-cloud. Local checkpoint f3c1c66 preserves preceding changes.
+A merge is in progress intentionally; conflicts have been resolved in source, with
+the final merge commit left for the user. No push/main merge by the agent.
+Original untracked IDE vcs settings are preserved in a named Git stash.
+Debug APK build + existing unit tests passed (4m 22s); Gradle sync succeeded.
+Read FRONTEND_INTEGRATION.md for changes, limitations, checklist and Git commands.
+Next: install the built APK, verify real workflows, then commit/push integration
+and open a reviewed PR to main. No backend rewrite is needed.
 
 ## Current deployment
 
@@ -35,7 +43,7 @@ The next task is phone-to-cloud verification, not a backend rewrite.
    emulator/Wi-Fi hints were removed from ServerSignInScreen. CanteenGoApp supplies
    the verified URL to the ViewModel. Rebuild and install the updated APK to see it.
    Older installed APKs still require manual entry of the verified base URL.
-   Build/device verification of this UI change is pending.
+   Build and unit-test task passed after frontend integration; device verification is pending.
 2. On phone browser, open that URL + /api/health and wait for status ok.
 3. Register/sign in, place an order, sign out/in, confirm saved order remains.
 4. Verify persistence after Render restart/redeploy.
@@ -59,8 +67,8 @@ when using the deployed URL.
 - backend/.env.example and README updated.
 - docs/DEPLOYMENT.md: complete deployment/CLI instructions and acceptance checklist.
 - docs/TEST_EVIDENCE.md: actual local test results.
-- Android session-expiry cleanup implemented earlier in CanteenViewModel.kt, still
-  uncommitted at last Git check and not verified on a device.
+- Android session-expiry cleanup was saved in local checkpoint f3c1c66 and retained
+  during frontend integration. Its device behavior still needs verification.
 
 Render settings:
 - Root Directory: backend
@@ -70,7 +78,7 @@ Render settings:
 - DATABASE_URL: private complete Neon URL (one URL, no quotes, no psql prefix)
 - Health Check Path: /api/health
 
-## Git checkpoint
+## Historical Git checkpoint (before frontend integration)
 
 Local check at handoff:
 - Branch feature/free-hosting-postgres tracks origin/feature/free-hosting-postgres.

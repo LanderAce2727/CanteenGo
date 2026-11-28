@@ -26,6 +26,21 @@ This checklist distinguishes working code from the remaining final-project deliv
 
 ## Development change log
 
+### 2026-11-28 — Frontend/cloud integration (R8, R11, R12, R17)
+
+- Combined collaborator frontend dc70bc5 with automatic cloud authentication on
+  integration/frontend-cloud, preserving a local checkpoint of prior work.
+- Wired designed auth, live menu/prices, category/navigation callbacks, cash-only
+  checkout and real admin stock updates; local-only menu editing remains demo-only.
+- Excluded imported machine-specific emulator selection and retained prior JDK name.
+- [x] Debug APK build and existing Android unit-test task passed (4m 22s).
+- [x] Gradle sync succeeded; Home/Login/Signup/ServerSignIn/Checkout previews rendered.
+- [ ] Phone/server role and order workflows verified.
+- See FRONTEND_INTEGRATION.md and TEST_EVIDENCE.md. Requirements remain partial
+  until connected workflows and the wider acceptance criteria are verified.
+
+
+
 ### 2026-11-28 — Free hosting and PostgreSQL support (R4, R8, R12, R13, R17)
 
 - Supersedes the paid SQLite hosting configuration below: Render Free + Neon Free,
