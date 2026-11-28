@@ -1,9 +1,20 @@
 # CanteenGo session handoff — 2026-11-28
 
+## Current main-only workflow
+
+User explicitly requested local commits/merges directly on main, with no PR workflow.
+Active branch: main. Integration/password changes were merged locally as 9ed0c8b.
+Password commit: 70c0103 ("Password Constraints"), already pushed on integration.
+No force push or branch deletion. Agent has not pushed main.
+Next action: user runs git push origin main, then deploys latest main in Render.
+Future routine work: stay on main, pull --ff-only before editing, commit and push
+reviewed work. Preserve teammates' changes; resolve divergence without force pushes.
+Earlier PR/integration instructions below are historical and superseded.
+
 ## Latest password-policy change
 
-Working branch integration/frontend-cloud; merge was committed/pushed by the user
-as 217c655 before this task. New password-policy edits are uncommitted.
+Frontend integration was committed/pushed by the user as 217c655; password changes
+were committed/pushed as 70c0103. Both are now merged into local main.
 New accounts: 8–128 characters with a letter and number; uppercase/symbols optional.
 Backend RegistrationCredentials separates new-account rules from login so legacy
 passwords still work. CLI, signup, login bounds and API error copy updated.
@@ -19,13 +30,13 @@ The user wants brief instructions, one step at a time, and wants to save chat cr
 Read this file before repeating discovery. Inspect Git status before making edits.
 Latest work: collaborator frontend dc70bc5 integrated locally on
 integration/frontend-cloud. Local checkpoint f3c1c66 preserves preceding changes.
-A merge is in progress intentionally; conflicts have been resolved in source, with
-the final merge commit left for the user. No push/main merge by the agent.
+The integration merge was completed by the user. The agent subsequently merged it
+into local main at the user's explicit request. No main push has been performed.
 Original untracked IDE vcs settings are preserved in a named Git stash.
 Debug APK build + existing unit tests passed (4m 22s); Gradle sync succeeded.
 Read FRONTEND_INTEGRATION.md for changes, limitations, checklist and Git commands.
-Next: install the built APK, verify real workflows, then commit/push integration
-and open a reviewed PR to main. No backend rewrite is needed.
+Next: push main directly, deploy latest main on Render, install the built APK and
+verify phone workflows. No pull request or backend rewrite is needed.
 
 ## Current deployment
 
