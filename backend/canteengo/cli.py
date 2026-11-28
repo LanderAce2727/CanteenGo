@@ -2,9 +2,10 @@
 import argparse
 from getpass import getpass
 import os
+from pydantic import ValidationError
 from .app import app
 from .database import connect, initialize, INTEGRITY_ERRORS
-from .schemas import Credentials
+from .schemas import RegistrationCredentials
 from .security import password_hash
 
 
@@ -14,10 +15,13 @@ def main():
     parser.add_argument("--username", required=True)
     parser.add_argument("--role", required=True, choices=["student", "staff", "admin"])
     args = parser.parse_args()
-    password = getpass("Password (12+ characters): ")
+    password = getpass("Password (8+ characters, letters and numbers): ")
     if password != getpass("Confirm password: "):
         parser.error("Passwords do not match")
-    credentials = Credentials(username=args.username, password=password)
+    try:
+        credentials = RegistrationCredentials(username=args.username, password=password)
+    except ValidationError:
+        parser.error("Use a valid username and an 8–128 character password with letters and numbers")
     path = app.state.db_path
     initialize(path)
     try:

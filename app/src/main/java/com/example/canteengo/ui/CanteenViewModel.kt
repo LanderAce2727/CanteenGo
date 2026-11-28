@@ -40,6 +40,20 @@ class CanteenViewModel : ViewModel() {
 
     fun clearMessage() { message = null }
 
+    private fun clearServerSession() {
+        report = ""
+        session = null
+        api = null
+        isOnline = false
+        role = "student"
+        username = ""
+        cart = emptyList()
+        orders = emptyList()
+        foods = DemoMenu.foods
+        pendingSignature = ""
+        pendingRequestId = ""
+    }
+
     private fun request(block: suspend () -> Unit) {
         if (busy) return
         busy = true
@@ -49,10 +63,13 @@ class CanteenViewModel : ViewModel() {
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (error: Exception) {
-                message = when (error) {
-                    is ApiException -> error.message
-                    is IllegalArgumentException -> error.message
-                    is IOException -> "Cannot reach the server. Check its address and your connection, then retry."
+                val sessionExpired = error is ApiException && error.status == 401 && session != null
+                if (sessionExpired) clearServerSession()
+                message = when {
+                    sessionExpired -> "Your session has expired. Please sign in again."
+                    error is ApiException -> error.message
+                    error is IllegalArgumentException -> error.message
+                    error is IOException -> "Cannot reach the server. Check its address and your connection, then retry."
                     else -> "Could not read the server response. Please try again."
                 }
             } finally {
@@ -96,16 +113,7 @@ class CanteenViewModel : ViewModel() {
             } catch (_: IOException) {
                 revoked = false
             }
-            report = ""
-            session = null
-            api = null
-            isOnline = false
-            role = "student"
-            username = ""
-            cart = emptyList()
-            orders = emptyList()
-            foods = DemoMenu.foods
-            pendingSignature = ""
+            clearServerSession()
             onDone()
             if (!revoked) message = "Signed out on this phone. The server session could not be revoked and will expire automatically."
         }

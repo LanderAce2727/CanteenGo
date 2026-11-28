@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.canteengo.ui.navigation.AppDestination
+import com.example.canteengo.data.ServerConfig
 import com.example.canteengo.ui.navigation.AppDestination.*
 import com.example.canteengo.ui.screens.*
 import kotlinx.coroutines.launch
@@ -88,18 +89,6 @@ fun CanteenGoApp(model: CanteenViewModel) {
                 }
             )
         },
-        bottomBar = {
-            if (!connecting && destination in studentTabs && (!model.isOnline || model.role == "student")) NavigationBar {
-                studentTabs.forEach { tab ->
-                    NavigationBarItem(
-                        selected = destination == tab,
-                        onClick = { route = tab.name },
-                        icon = { Text(tab.symbol, style = MaterialTheme.typography.titleLarge) },
-                        label = { Text(if (tab == CART && model.itemCount > 0) "Cart (${model.itemCount})" else tab.title) }
-                    )
-                }
-            }
-        },
         snackbarHost = { SnackbarHost(snackbar) }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -113,8 +102,8 @@ fun CanteenGoApp(model: CanteenViewModel) {
                 )
             }
             Box(Modifier.widthIn(max = 1100.dp).weight(1f).fillMaxWidth()) {
-                if (connecting) ServerSignInScreen(model.busy, onConnect = { address, name, password, register ->
-                    model.connect(address, name, password, register) {
+                if (connecting) ServerSignInScreen(model.busy, onConnect = { name, password, register ->
+                    model.connect(ServerConfig.BASE_URL, name, password, register) {
                         selectedOrder = null
                         connecting = false
                         route = accountHome()
@@ -122,22 +111,47 @@ fun CanteenGoApp(model: CanteenViewModel) {
                 }, onBack = { connecting = false })
                 else when (destination) {
                     WELCOME -> WelcomeScreen(
-                        onStudent = { route = if (model.isOnline) accountHome() else HOME.name },
-                        onStaff = { route = if (model.isOnline) accountHome() else STAFF.name },
-                        onConnect = { if (model.isOnline) route = accountHome() else connecting = true }
+                        onStudent = { if (model.isOnline) route = accountHome() else connecting = true },
+                        onStaff = { if (model.isOnline) route = accountHome() else connecting = true },
+                        onConnect = { route = if (model.isOnline) accountHome() else HOME.name }
                     )
-                    HOME -> HomeScreen(onCategory = { category = it; route = MENU.name }, onAdd = add, foods = model.foods)
-                    MENU -> MenuScreen(category, onCategory = { category = it }, onAdd = add, menu = model.foods)
+                    HOME -> HomeScreen(
+                        studentName = if (model.isOnline) model.username else "Student",
+                        foods = model.foods,
+                        onCategory = { category = it; route = MENU.name },
+                        onMenuClick = { route = MENU.name },
+                        onCartClick = { route = CART.name },
+                        onOrdersClick = { route = ORDERS.name },
+                        onFoodClick = { foodId -> add(foodId) }
+                    )
+                    MENU -> MenuScreen(category, onCategory = { category = it }, onAdd = add, menu = model.foods,
+                        onHomeClick = { route = HOME.name }, onCartClick = { route = CART.name },
+                        onOrdersClick = { route = ORDERS.name })
                     CART -> CartScreen(model.cart, model.totalCentavos, model::changeQuantity, model::remove,
-                        browse, onCheckout = { route = CHECKOUT.name })
-                    CHECKOUT -> CheckoutScreen(model.cart, model.totalCentavos, onPlace = { name ->
-                        model.submitOrder(name) { number -> selectedOrder = number; route = ORDERS.name }
-                    }, onBrowse = browse, isDemo = !model.isOnline)
+                        browse, onCheckout = { route = CHECKOUT.name },
+                        onHomeClick = { route = HOME.name }, onMenuClick = browse,
+                        onCartClick = { route = CART.name }, onOrdersClick = { route = ORDERS.name })
+                    CHECKOUT -> CheckoutScreen(
+                        cart = model.cart,
+                        total = model.totalCentavos,
+                        onPlace = { name, _ ->
+                            model.submitOrder(customer = name) { number ->
+                                selectedOrder = number
+                                route = ORDERS.name
+                            }
+                        },
+                        onBrowse = browse,
+                        isDemo = !model.isOnline,
+                        onHomeClick = { route = HOME.name }, onMenuClick = browse,
+                        onCartClick = { route = CART.name }, onOrdersClick = { route = ORDERS.name }
+                    )
                     ORDERS -> OrdersScreen(model.orders, selectedOrder ?: model.orders.firstOrNull()?.number,
-                        onSelect = { selectedOrder = it }, onBrowse = browse)
+                        onSelect = { selectedOrder = it }, onBrowse = browse,
+                        onHomeClick = { route = HOME.name }, onMenuClick = browse,
+                        onCartClick = { route = CART.name }, onOrdersClick = { route = ORDERS.name })
                     STAFF -> StaffDashboardScreen(model.orders, model::advanceOrder)
                     ADMIN -> AdminScreen(model.orders, model.report, model::loadReport, model::updateStock,
-                        onStaff = { route = STAFF.name })
+                        onStaff = { route = STAFF.name }, foods = model.foods, isDemo = !model.isOnline)
                 }
             }
         }

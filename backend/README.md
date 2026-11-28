@@ -27,7 +27,8 @@ Create staff and administrator accounts locally, from a separate terminal:
 .\.venv\Scripts\python.exe -m canteengo.cli create-user --username manager --role admin
 ```
 
-The tool prompts for the password twice. Use a unique password of 12–128 characters.
+The tool prompts for the password twice. Use a unique password of 8–128 characters containing at least one letter and one number.
+Symbols and uppercase letters are optional. Existing accounts keep their original passwords.
 Never put passwords on the command line or in committed files.
 Only someone with access to the server should run this account-provisioning tool.
 

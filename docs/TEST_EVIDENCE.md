@@ -1,5 +1,41 @@
 # Development verification
 
+## 2026-11-28 — Password policy
+
+Command from backend:
+`./.venv/Scripts/python.exe -m pytest -q -p no:cacheprovider tests/test_password_policy.py`
+
+Final result: 13 passed, 1 existing Starlette/httpx warning in 5.27 seconds, exit 0.
+Includes a CLI check that invalid-password errors do not print the password.
+Android assembleDebug: BUILD SUCCESSFUL in 15s (38 tasks; 4 executed).
+Updated Signup preview rendered successfully.
+Covers 8-character acceptance, optional uppercase/symbols, length/composition
+rejection, unchanged whitespace handling and legacy-password login validation.
+An isolated SQLite API test verifies registration with eight characters, login,
+wrong-password rejection and an older letters-only password stored as a hash.
+Live cloud deployment and phone verification are pending.
+No schema migration, dependency upgrade or password rehash was required.
+
+
+## 2026-11-28 — Frontend integration
+
+Branch: integration/frontend-cloud. Incoming frontend: dc70bc5.
+Command: `.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest --console=plain`
+Result: BUILD SUCCESSFUL in 4m 22s, 44 tasks executed, exit 0.
+Gradle sync subsequently finished successfully.
+The existing Android unit-test task passed. IDE policy excludes the generated test
+report directory, so no test count is asserted here.
+Warnings include deprecated ReceiptLong icons and a native library packaged without
+symbol stripping. Neither prevented the debug build.
+Before integration, Login/Signup/Welcome previews rendered; Home/Checkout/Admin
+initially failed because the added icons dependency had not been synced.
+After sync, Home, Login, Signup, ServerSignIn wrapper and Checkout previews rendered.
+The wrapper's initial stale cached Login signature error cleared after refreshing
+Login and rendering the wrapper again. See FRONTEND_INTEGRATION.md.
+Device/server journeys remain manual and pending. Backend tests were not rerun
+because backend code and schema were unchanged in this merge.
+
+
 ## 2026-11-28 — Free hosting and database compatibility
 
 Command from backend:
