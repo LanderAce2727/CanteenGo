@@ -1,5 +1,16 @@
 # CanteenGo session handoff — 2026-11-28
 
+## Latest UI password validation change
+
+User requested backend-only password rules. On main, Login/Signup no longer enforce
+password length, composition or blank-password rules; Signup retains confirmation
+matching and existing username validation. Password requirement helper text removed.
+CanteenApi displays backend validation messages (msg only), without echoing submitted
+input/passwords. Backend password policy is unchanged. No new dependencies.
+Updated APK must be installed. These edits are uncommitted; no automatic push.
+Suggested commit: fix: delegate password validation to the backend.
+Build result recorded in TEST_EVIDENCE.md.
+
 ## Current main-only workflow
 
 User explicitly requested local commits/merges directly on main, with no PR workflow.

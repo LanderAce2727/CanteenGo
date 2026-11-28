@@ -52,9 +52,18 @@ class CanteenApi(address: String) {
                 val result = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
                 if (code !in 200..299) {
                     val detail = runCatching { JSONObject(result).opt("detail") }.getOrNull()
-                    val message = if (detail is String) detail else when (code) {
-                        422 -> "Check your details: username 3–40 characters, password 8–128 characters (letters and numbers for new accounts)."
-                        503 -> "The server is temporarily unavailable."
+                    // Display backend validation messages without copying input values
+                    // (which may include passwords) from the validation response.
+                    val validation = if (detail is JSONArray) {
+                        List(detail.length()) { index ->
+                            detail.optJSONObject(index)?.optString("msg").orEmpty()
+                        }.filter { it.isNotBlank() }.distinct().joinToString("\n")
+                    } else ""
+                    val message = when {
+                        detail is String -> detail
+                        validation.isNotBlank() -> validation
+                        code == 422 -> "Check your details and try again."
+                        code == 503 -> "The server is temporarily unavailable."
                         else -> "Server request failed ($code)"
                     }
                     throw ApiException(code, message)

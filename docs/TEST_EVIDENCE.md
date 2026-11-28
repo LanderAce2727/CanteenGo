@@ -1,5 +1,17 @@
 # Development verification
 
+## 2026-11-28 — Backend-only password validation in Android
+
+Removed client password length/composition/blank checks and the signup helper text.
+Confirmation matching remains. Backend validation messages now appear without
+echoing validation input values or passwords. Backend policy/code is unchanged.
+Command: `.\gradlew.bat :app:assembleDebug --console=plain`
+Result: BUILD SUCCESSFUL in 6s, 38 tasks (4 executed), exit 0.
+Source search found no remaining Android password length/composition rules.
+Runtime error-display/phone testing remains pending; backend tests were not rerun
+because this change only affects Android UI/network error presentation.
+
+
 ## 2026-11-28 — Password policy
 
 Command from backend:
