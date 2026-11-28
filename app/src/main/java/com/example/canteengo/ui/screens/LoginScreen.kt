@@ -198,8 +198,8 @@ fun LoginScreen(
                     onClick = {
                         if (!username.trim().matches(Regex("[a-z0-9][a-z0-9_.-]{2,39}"))) {
                             errorMessage = "Use 3–40 lowercase letters, numbers, dots, underscores or hyphens."
-                        } else if (password.length !in 12..128) {
-                            errorMessage = "Password must contain 12–128 characters."
+                        } else if (password.length !in 8..128) {
+                            errorMessage = "Password must contain 8–128 characters."
                         } else if (username.isBlank() || password.isBlank()) {
                             errorMessage = "Please enter your username and password."
                         } else {

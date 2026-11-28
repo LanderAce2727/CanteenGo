@@ -1,5 +1,22 @@
 # Development verification
 
+## 2026-11-28 — Password policy
+
+Command from backend:
+`./.venv/Scripts/python.exe -m pytest -q -p no:cacheprovider tests/test_password_policy.py`
+
+Final result: 13 passed, 1 existing Starlette/httpx warning in 5.27 seconds, exit 0.
+Includes a CLI check that invalid-password errors do not print the password.
+Android assembleDebug: BUILD SUCCESSFUL in 15s (38 tasks; 4 executed).
+Updated Signup preview rendered successfully.
+Covers 8-character acceptance, optional uppercase/symbols, length/composition
+rejection, unchanged whitespace handling and legacy-password login validation.
+An isolated SQLite API test verifies registration with eight characters, login,
+wrong-password rejection and an older letters-only password stored as a hash.
+Live cloud deployment and phone verification are pending.
+No schema migration, dependency upgrade or password rehash was required.
+
+
 ## 2026-11-28 — Frontend integration
 
 Branch: integration/frontend-cloud. Incoming frontend: dc70bc5.

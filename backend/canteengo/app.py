@@ -19,7 +19,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import httpx
 
 from .database import connect, initialize, database_target, begin_order_write, begin_login_write, INTEGRITY_ERRORS
-from .schemas import Credentials, NewOrder, StatusChange, StockChange
+from .schemas import Credentials, RegistrationCredentials, NewOrder, StatusChange, StockChange
 from .security import password_hash, password_matches, token_hash
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
@@ -94,7 +94,7 @@ def create_app(db_path=None):
         return {"status": "ok", "service": "CanteenGo"}
 
     @api.post("/api/auth/register", status_code=201)
-    def register(body: Credentials):
+    def register(body: RegistrationCredentials):
         # Public registration ALWAYS creates students; roles cannot be supplied by clients.
         encoded = password_hash(body.password)
         try:

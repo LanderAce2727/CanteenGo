@@ -125,6 +125,7 @@ fun SignUpScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
                     placeholder = { Text("Create a password") },
+                    supportingText = { Text("At least 8 characters, with letters and numbers. Symbols are optional.") },
                     singleLine = true,
                     shape = RoundedCornerShape(13.dp),
                     visualTransformation = if (passwordVisible)
@@ -228,8 +229,11 @@ fun SignUpScreen(
                             !username.trim().matches(Regex("[a-z0-9][a-z0-9_.-]{2,39}")) -> {
                                 errorMessage = "Use 3–40 lowercase letters, numbers, dots, underscores or hyphens."
                             }
-                            password.length !in 12..128 -> {
-                                errorMessage = "Password must contain 12–128 characters."
+                            password.length !in 8..128 -> {
+                                errorMessage = "Password must contain 8–128 characters."
+                            }
+                            !password.any { it.isLetter() } || !password.any { it.isDigit() } -> {
+                                errorMessage = "Include at least one letter and one number."
                             }
                             password != confirmPassword -> {
                                 errorMessage =

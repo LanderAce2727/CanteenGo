@@ -26,6 +26,19 @@ This checklist distinguishes working code from the remaining final-project deliv
 
 ## Development change log
 
+### 2026-11-28 — Password policy update (R11, R12, R17)
+
+- New accounts require at least 8 characters, one letter and one number; symbols
+  and uppercase are optional. Existing 128-character maximum retained.
+- App signup, backend registration and account CLI use the same policy.
+- Login uses length bounds only, preserving older account passwords.
+- [x] Targeted backend tests: 13 passed, 1 existing warning (5.27s).
+- [x] Updated debug APK built (15s) and Signup preview rendered.
+- [ ] Deploy backend update and install updated APK; verify on phone.
+- No database migration or existing-account changes.
+
+
+
 ### 2026-11-28 — Frontend/cloud integration (R8, R11, R12, R17)
 
 - Combined collaborator frontend dc70bc5 with automatic cloud authentication on

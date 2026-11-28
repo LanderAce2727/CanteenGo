@@ -26,6 +26,13 @@ Status codes: 401 invalid/expired session or login, 403 wrong role, 404 unknown 
 422 invalid input, 429 login rate limit, 503 unavailable holiday service.
 Unexpected server errors use normal 500 responses without exposing debug tracebacks.
 
+## Password policy
+
+New accounts (public registration and the provisioning CLI) require 8–128 characters,
+at least one letter and one number. Symbols and uppercase letters are optional.
+Login accepts existing stored passwords without applying the new composition rule.
+Passwords are not trimmed. Existing hashes and accounts require no migration.
+
 ## Checkout example
 
 ```json

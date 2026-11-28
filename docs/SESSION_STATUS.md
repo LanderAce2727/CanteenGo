@@ -1,5 +1,18 @@
 # CanteenGo session handoff — 2026-11-28
 
+## Latest password-policy change
+
+Working branch integration/frontend-cloud; merge was committed/pushed by the user
+as 217c655 before this task. New password-policy edits are uncommitted.
+New accounts: 8–128 characters with a letter and number; uppercase/symbols optional.
+Backend RegistrationCredentials separates new-account rules from login so legacy
+passwords still work. CLI, signup, login bounds and API error copy updated.
+Tests: 13 passed in 5.27s; debug APK build passed in 15s; Signup preview rendered.
+Cloud and phone verification pending. CLI validation avoids printing passwords.
+Backend must be pushed/merged and manually deployed on Render, AND APK rebuilt/
+installed, for eight-character registration to work on the phone.
+Suggested commit: fix: allow eight-character passwords with letters and numbers.
+
 ## Resume here
 
 The user wants brief instructions, one step at a time, and wants to save chat credits.

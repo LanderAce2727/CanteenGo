@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 
 Username = Annotated[str, StringConstraints(strip_whitespace=True, pattern=r"^[a-z0-9][a-z0-9_.-]{2,39}$")]
 FoodId = Annotated[str, StringConstraints(pattern=r"^[a-z0-9_-]{1,40}$")]
@@ -11,8 +11,16 @@ class StrictModel(BaseModel):
 class Credentials(StrictModel):
     username: Username
     # Password whitespace is meaningful.
-    password: Annotated[str, Field(min_length=12, max_length=128)]
+    password: Annotated[str, Field(min_length=8, max_length=128)]
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=False)
+
+class RegistrationCredentials(Credentials):
+    @field_validator("password")
+    @classmethod
+    def letters_and_numbers(cls, value: str) -> str:
+        if not any(character.isalpha() for character in value) or not any(character.isdecimal() for character in value):
+            raise ValueError("Password must contain at least one letter and one number")
+        return value
 
 class OrderLine(StrictModel):
     food_id: FoodId

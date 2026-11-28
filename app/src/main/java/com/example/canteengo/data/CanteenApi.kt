@@ -53,7 +53,7 @@ class CanteenApi(address: String) {
                 if (code !in 200..299) {
                     val detail = runCatching { JSONObject(result).opt("detail") }.getOrNull()
                     val message = if (detail is String) detail else when (code) {
-                        422 -> "Check your details: username 3–40 characters, password 12–128 characters."
+                        422 -> "Check your details: username 3–40 characters, password 8–128 characters (letters and numbers for new accounts)."
                         503 -> "The server is temporarily unavailable."
                         else -> "Server request failed ($code)"
                     }
