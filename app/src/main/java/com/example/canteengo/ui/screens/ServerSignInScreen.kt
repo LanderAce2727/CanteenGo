@@ -10,8 +10,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.canteengo.BuildConfig
+import com.example.canteengo.ui.theme.CanteenGoTheme
 
 @Composable
 fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, String, Boolean) -> Unit, onBack: () -> Unit) {
@@ -50,5 +52,19 @@ fun ServerSignInScreen(busy: Boolean, onConnect: (String, String, String, Boolea
             Text(if (registering) "Already registered? Sign in" else "Create a student account")
         }
         TextButton(onClick = onBack, enabled = !busy) { Text("Back") }
+    }
+}
+
+@Preview(name = "Server Sign In", showBackground = true, widthDp = 393, heightDp = 852)
+@Composable
+private fun ServerSignInScreenPreview() {
+    CanteenGoTheme {
+        Surface {
+            ServerSignInScreen(
+                busy = false,
+                onConnect = { _, _, _, _ -> },
+                onBack = {}
+            )
+        }
     }
 }

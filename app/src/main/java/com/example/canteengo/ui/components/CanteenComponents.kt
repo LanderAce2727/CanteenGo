@@ -11,20 +11,68 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.canteengo.data.FoodItem
 import com.example.canteengo.data.php
+import androidx.compose.foundation.Image
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+
 
 @Composable
 fun FoodCard(food: FoodItem, onAdd: () -> Unit) {
-    Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text(food.emoji, fontSize = 44.sp)
-            Text(food.category, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
-            Text(food.name, style = MaterialTheme.typography.titleLarge)
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
+            if (food.imageRes != null) {
+                Image(
+                    painter = painterResource(id = food.imageRes),
+                    contentDescription = food.name,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(130.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(food.emoji, fontSize = 44.sp)
+            }
+
+            Text(
+                food.category,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(food.name, style = MaterialTheme.typography.titleMedium)
+
             Text(food.description, style = MaterialTheme.typography.bodyMedium)
-            Text(php(food.priceCentavos), style = MaterialTheme.typography.titleMedium)
-            Button(onClick = onAdd, modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Add ${food.name} to cart" }) { Text("Add to cart") }
+
+            Text(
+                php(food.priceCentavos),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Button(
+                onClick = onAdd,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentDescription = "Add ${food.name} to cart"
+                    }
+            ) {
+                Text("Add to cart")
+            }
         }
     }
 }
+
 
 @Composable
 fun QuantitySelector(name: String, quantity: Int, onChange: (Int) -> Unit) {

@@ -126,13 +126,32 @@ fun CanteenGoApp(model: CanteenViewModel) {
                         onStaff = { route = if (model.isOnline) accountHome() else STAFF.name },
                         onConnect = { if (model.isOnline) route = accountHome() else connecting = true }
                     )
-                    HOME -> HomeScreen(onCategory = { category = it; route = MENU.name }, onAdd = add, foods = model.foods)
+                    HOME -> HomeScreen(
+                        studentName = if (model.isOnline) model.username else "Student",
+                        onMenuClick = { route = MENU.name },
+                        onCartClick = { route = CART.name },
+                        onOrdersClick = { route = ORDERS.name },
+                        onFoodClick = { foodName ->
+                            val food = model.foods.find { it.name.equals(foodName, ignoreCase = true) }
+                            food?.let { add(it.id) }
+                            route = MENU.name
+                        }
+                    )
                     MENU -> MenuScreen(category, onCategory = { category = it }, onAdd = add, menu = model.foods)
                     CART -> CartScreen(model.cart, model.totalCentavos, model::changeQuantity, model::remove,
                         browse, onCheckout = { route = CHECKOUT.name })
-                    CHECKOUT -> CheckoutScreen(model.cart, model.totalCentavos, onPlace = { name ->
-                        model.submitOrder(name) { number -> selectedOrder = number; route = ORDERS.name }
-                    }, onBrowse = browse, isDemo = !model.isOnline)
+                    CHECKOUT -> CheckoutScreen(
+                        cart = model.cart,
+                        total = model.totalCentavos,
+                        onPlace = { name, _ ->
+                            model.submitOrder(customer = name) { number ->
+                                selectedOrder = number
+                                route = ORDERS.name
+                            }
+                        },
+                        onBrowse = browse,
+                        isDemo = !model.isOnline
+                    )
                     ORDERS -> OrdersScreen(model.orders, selectedOrder ?: model.orders.firstOrNull()?.number,
                         onSelect = { selectedOrder = it }, onBrowse = browse)
                     STAFF -> StaffDashboardScreen(model.orders, model::advanceOrder)
