@@ -78,12 +78,19 @@ class CanteenViewModel : ViewModel() {
         }
     }
 
-    fun connect(address: String, name: String, password: String, register: Boolean, onConnected: () -> Unit) {
+    fun connect(address: String, name: String, password: String, register: Boolean, portal: LoginPortal? = null, onConnected: () -> Unit) {
         request {
             val client = CanteenApi(address)
+            if (register && portal == LoginPortal.ADMIN) {
+                throw IllegalArgumentException("Create customer accounts from Customer Login.")
+            }
             if (register) client.register(name.trim(), password)
             val signedIn = client.login(name.trim(), password)
             try {
+                if (portal != null && !portal.acceptsRole(signedIn.role)) {
+                    val appropriatePortal = if (signedIn.role == "student") "Customer Login" else "Admin Login"
+                    throw ApiException(403, "Use $appropriatePortal for this account.")
+                }
                 val menu = client.menu(signedIn.token)
                 val savedOrders = client.orders(signedIn.token)
                 api = client

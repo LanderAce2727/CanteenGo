@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.canteengo.ui.navigation.AppDestination
 import com.example.canteengo.data.ServerConfig
+import com.example.canteengo.data.LoginPortal
 import com.example.canteengo.ui.navigation.AppDestination.*
 import com.example.canteengo.ui.screens.*
 import kotlinx.coroutines.launch
@@ -20,6 +21,8 @@ import kotlinx.coroutines.launch
 fun CanteenGoApp(model: CanteenViewModel) {
     var route by rememberSaveable { mutableStateOf(WELCOME.name) }
     var connecting by rememberSaveable { mutableStateOf(false) }
+    var loginPortalName by rememberSaveable { mutableStateOf(LoginPortal.CUSTOMER.name) }
+    val loginPortal = LoginPortal.valueOf(loginPortalName)
     var hadServerSession by rememberSaveable { mutableStateOf(false) }
     var category by rememberSaveable { mutableStateOf("All") }
     var selectedOrder by rememberSaveable { mutableStateOf<String?>(null) }
@@ -103,16 +106,22 @@ fun CanteenGoApp(model: CanteenViewModel) {
             }
             Box(Modifier.widthIn(max = 1100.dp).weight(1f).fillMaxWidth()) {
                 if (connecting) ServerSignInScreen(model.busy, onConnect = { name, password, register ->
-                    model.connect(ServerConfig.BASE_URL, name, password, register) {
+                    model.connect(ServerConfig.BASE_URL, name, password, register, portal = loginPortal) {
                         selectedOrder = null
                         connecting = false
                         route = accountHome()
                     }
-                }, onBack = { connecting = false })
+                }, onBack = { connecting = false }, portal = loginPortal)
                 else when (destination) {
                     WELCOME -> WelcomeScreen(
-                        onStudent = { if (model.isOnline) route = accountHome() else connecting = true },
-                        onStaff = { if (model.isOnline) route = accountHome() else connecting = true },
+                        onStudent = {
+                            loginPortalName = LoginPortal.CUSTOMER.name
+                            if (model.isOnline) route = accountHome() else connecting = true
+                        },
+                        onStaff = {
+                            loginPortalName = LoginPortal.ADMIN.name
+                            if (model.isOnline) route = accountHome() else connecting = true
+                        },
                         onConnect = { route = if (model.isOnline) accountHome() else HOME.name }
                     )
                     HOME -> HomeScreen(

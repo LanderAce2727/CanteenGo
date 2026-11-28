@@ -5,16 +5,18 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.canteengo.ui.theme.CanteenGoTheme
+import com.example.canteengo.data.LoginPortal
 
 /** Connect the designed auth screens to the existing server authentication flow. */
 @Composable
 fun ServerSignInScreen(
     busy: Boolean,
     onConnect: (String, String, Boolean) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    portal: LoginPortal = LoginPortal.CUSTOMER
 ) {
     var registering by rememberSaveable { mutableStateOf(false) }
-    if (registering) {
+    if (registering && portal == LoginPortal.CUSTOMER) {
         SignUpScreen(
             onSignUp = { username, password -> onConnect(username, password, true) },
             onLogin = { if (!busy) registering = false },
@@ -24,8 +26,9 @@ fun ServerSignInScreen(
         LoginScreen(
             onLogin = { username, password -> onConnect(username, password, false) },
             onGuest = onBack,
-            onSignUp = { if (!busy) registering = true },
-            busy = busy
+            onSignUp = { if (!busy && portal == LoginPortal.CUSTOMER) registering = true },
+            busy = busy,
+            portal = portal
         )
     }
 }

@@ -1,5 +1,18 @@
 # Development verification
 
+## 2026-11-28 — Customer/admin login portals
+
+Command: `.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest --console=plain`
+Result: BUILD SUCCESSFUL in 15s, 44 tasks (8 executed), exit 0.
+Added LoginPortalTest covering student-only customer access, admin/staff portal
+access and rejection of unknown/empty roles. The unit-test task passed.
+Customer Login, Admin Login and Welcome previews rendered; semantics contained the
+expected labels. Source search found no local credential validation in LoginScreen.
+Signup remains customer-only; backend credential validation remains unchanged.
+Wrong-portal session revocation and role-specific navigation need device/server
+verification; previews and policy unit tests do not prove connected workflows.
+
+
 ## 2026-11-28 — Backend-only password validation in Android
 
 Removed client password length/composition/blank checks and the signup helper text.

@@ -56,7 +56,7 @@ fun SignUpScreen(
 
         // HEADER
         Text(
-            text = "Create an account",
+            text = "Customer Sign Up",
             fontSize = 27.sp,
             fontWeight = FontWeight.Bold,
             color = BrownText
@@ -273,7 +273,7 @@ fun SignUpScreen(
                 onClick = onLogin
             ) {
                 Text(
-                    text = "Log in",
+                    text = "Customer Login",
                     color = DarkOrange,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold

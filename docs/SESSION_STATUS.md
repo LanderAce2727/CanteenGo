@@ -1,5 +1,37 @@
 # CanteenGo session handoff — 2026-11-28
 
+## Latest customer/admin login update
+
+On main, separate Customer Login and Admin Login portal selection/labels are wired
+from Welcome through ServerSignInScreen and LoginScreen.
+Login form no longer has username/password format, length or blank-input validators;
+the backend handles credential validation. Customer signup keeps its username and
+password-confirmation checks; it is not available in the admin portal.
+LoginPortal accepts student for customer and admin/staff for admin portal.
+ViewModel checks authenticated server roles before loading/assigning session data;
+wrong-portal sessions are revoked with a message to use the other login.
+Server roles remain authoritative; no new privileged-registration endpoint.
+Build + unit-test task succeeded in 15s; new portal allowlist tests included.
+Customer/Admin/Welcome previews rendered and showed correct labels.
+Phone/server journeys remain pending; install updated APK. No backend changes or
+Render deployment required for this UI task. Changes are uncommitted/unpushed.
+Suggested commit: fix: separate customer and admin login flows.
+Preserve the account provisioning notes and private ignored backend/.env.
+
+## Cloud administrator accounts provisioned
+
+On 2026-11-28, CLI creation completed successfully (exit 0) for usernames admin,
+staff and admin2, ALL with role admin, per the user's explicit clarification.
+Username Admin was normalized to lowercase admin under existing username rules.
+Used the user's privately configured Neon DATABASE_URL in ignored backend/.env.
+RENDER=true was set for provisioning commands to prohibit accidental SQLite fallback.
+Passwords were entered through hidden prompts and stored as hashes, not in source
+or this document. Do not create these accounts again or reset them without a request.
+Phone login verification remains pending. Account creation itself needs no APK
+update or Render redeploy; the deployed API must support the current password rules.
+Local main was clean at the start; UI-password commit 6b8d695 was already pushed.
+This status update is uncommitted. Never commit backend/.env.
+
 ## Latest UI password validation change
 
 User requested backend-only password rules. On main, Login/Signup no longer enforce

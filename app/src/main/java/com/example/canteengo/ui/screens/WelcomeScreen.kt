@@ -144,7 +144,7 @@ fun WelcomeScreen(
             )
         ) {
             Text(
-                text = "Log In",
+                text = "Customer Login",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -183,7 +183,7 @@ fun WelcomeScreen(
             onClick = onStaff
         ) {
             Text(
-                text = "Staff / Admin Login",
+                text = "Admin Login",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = DarkOrange

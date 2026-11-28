@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Image
 import com.example.canteengo.R
+import com.example.canteengo.data.LoginPortal
 import com.example.canteengo.ui.theme.CanteenGoTheme
 
 // CanteenGo Peach Café palette
@@ -38,12 +39,12 @@ fun LoginScreen(
     onGuest: () -> Unit,
     onSignUp: () -> Unit,
     onForgotPassword: (() -> Unit)? = null,
-    busy: Boolean = false
+    busy: Boolean = false,
+    portal: LoginPortal = LoginPortal.CUSTOMER
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -67,7 +68,7 @@ fun LoginScreen(
 
         // HEADER
         Text(
-            text = "Welcome back!",
+            text = portal.title,
             fontSize = 27.sp,
             fontWeight = FontWeight.Bold,
             color = BrownText
@@ -76,7 +77,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = "Sign in to continue",
+            text = if (portal == LoginPortal.ADMIN) "For administrators and canteen staff" else "Sign in to order your campus favorites",
             fontSize = 14.sp,
             color = MutedBrown
         )
@@ -104,7 +105,6 @@ fun LoginScreen(
                     value = username,
                     onValueChange = {
                         username = it
-                        errorMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Username") },
@@ -128,7 +128,6 @@ fun LoginScreen(
                     value = password,
                     onValueChange = {
                         password = it
-                        errorMessage = ""
                     },
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Password") },
@@ -178,31 +177,12 @@ fun LoginScreen(
                     }
                 }
 
-                // ERROR MESSAGE
-                if (errorMessage.isNotEmpty()) {
-                    Text(
-                        text = errorMessage,
-                        color = Color.Red,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // LOGIN BUTTON
                 Button(
                     enabled = !busy,
-                    onClick = {
-                        if (!username.trim().matches(Regex("[a-z0-9][a-z0-9_.-]{2,39}"))) {
-                            errorMessage = "Use 3–40 lowercase letters, numbers, dots, underscores or hyphens."
-                        } else {
-                            errorMessage = ""
-                            onLogin(username.trim(), password)
-                        }
-                    },
+                    onClick = { onLogin(username.trim(), password) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
@@ -215,7 +195,7 @@ fun LoginScreen(
                     )
                 ) {
                     Text(
-                        text = "Log In",
+                        text = portal.title,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
@@ -275,8 +255,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // SIGN UP LINK
-        Row(
+        // Customer registration only; privileged accounts are provisioned separately.
+        if (portal == LoginPortal.CUSTOMER) Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -310,7 +290,15 @@ fun LoginScreen(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(name = "Admin login", showBackground = true, widthDp = 393, heightDp = 852)
+@Composable
+private fun AdminLoginScreenPreview() {
+    CanteenGoTheme {
+        LoginScreen(onLogin = { _, _ -> }, onGuest = {}, onSignUp = {}, portal = LoginPortal.ADMIN)
+    }
+}
+
+@Preview(name = "Customer login", showBackground = true, showSystemUi = true)
 @Composable
 private fun LoginScreenPreview() {
     CanteenGoTheme {
