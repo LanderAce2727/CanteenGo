@@ -1,6 +1,11 @@
 """Isolated API integration/security tests; no production DB or network access."""
 from concurrent.futures import ThreadPoolExecutor
 import sqlite3
+import os
+from contextlib import contextmanager
+from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+import psycopg
+from psycopg import sql
 import time
 from uuid import uuid4
 import pytest
@@ -12,9 +17,36 @@ from canteengo.security import password_hash, password_matches
 PASSWORD = "Synthetic-Test-Pass-42"
 
 
+@contextmanager
+def isolated_target(kind, tmp_path):
+    if kind == "sqlite":
+        yield tmp_path / "test.sqlite3"
+        return
+    target = os.getenv("TEST_DATABASE_URL")
+    if not target:
+        pytest.skip("TEST_DATABASE_URL not configured; PostgreSQL not verified")
+    schema = "canteengo_test_" + uuid4().hex
+    # Tests use a separate random schema and remove only that schema afterwards.
+    with psycopg.connect(target, autocommit=True, sslmode="require") as admin:
+        admin.execute(sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema)))
+        try:
+            uri = urlsplit(target)
+            query = dict(parse_qsl(uri.query))
+            query["options"] = "-csearch_path=" + schema
+            yield urlunsplit(uri._replace(query=urlencode(query)))
+        finally:
+            admin.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema)))
+
+
+@pytest.fixture(params=["sqlite", "postgres"])
+def storage_target(request, tmp_path):
+    with isolated_target(request.param, tmp_path) as target:
+        yield target
+
+
 @pytest.fixture()
-def system(tmp_path):
-    path = tmp_path / "test.sqlite3"
+def system(storage_target):
+    path = storage_target
     app = create_app(path)
     with TestClient(app) as client:
         with connect(path) as db:
@@ -72,7 +104,7 @@ def test_invalid_passwords(system, password):
 
 def test_salted_password_storage(system):
     with connect(system[1]) as db:
-        stored = db.execute("SELECT password_hash FROM users WHERE username='alice'").fetchone()[0]
+        stored = db.execute("SELECT password_hash FROM users WHERE username='alice'").fetchone()["password_hash"]
     assert PASSWORD not in stored
     assert password_matches(PASSWORD, stored)
     assert not password_matches("wrong password", stored)
@@ -137,7 +169,7 @@ def test_idempotent_retry(system):
     first = place(system, body).json()
     assert place(system, body).json()["number"] == first["number"]
     with connect(system[1]) as db:
-        assert db.execute("SELECT stock FROM foods WHERE id='chicken'").fetchone()[0] == 98
+        assert db.execute("SELECT stock FROM foods WHERE id='chicken'").fetchone()["stock"] == 98
 
 
 def test_idempotency_key_cannot_change_order(system):
@@ -179,8 +211,8 @@ def test_insufficient_stock_rolls_back_entire_order(system):
                              {"food_id": "missing", "quantity": 1}])
     assert place(system, body).status_code == 409
     with connect(system[1]) as db:
-        assert db.execute("SELECT stock FROM foods WHERE id='chicken'").fetchone()[0] == 100
-        assert db.execute("SELECT COUNT(*) FROM orders").fetchone()[0] == 0
+        assert db.execute("SELECT stock FROM foods WHERE id='chicken'").fetchone()["stock"] == 100
+        assert db.execute("SELECT COUNT(*) AS count FROM orders").fetchone()["count"] == 0
 
 
 def test_concurrent_orders_cannot_oversell(system):

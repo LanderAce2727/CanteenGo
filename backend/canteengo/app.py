@@ -8,7 +8,6 @@ import json
 import os
 from pathlib import Path
 import secrets
-import sqlite3
 import time
 import uuid
 from xml.etree.ElementTree import Element, SubElement, tostring
@@ -19,7 +18,7 @@ from fastapi.responses import JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import httpx
 
-from .database import connect, initialize
+from .database import connect, initialize, database_target, begin_order_write, begin_login_write, INTEGRITY_ERRORS
 from .schemas import Credentials, NewOrder, StatusChange, StockChange
 from .security import password_hash, password_matches, token_hash
 
@@ -38,7 +37,7 @@ def order_json(row):
 
 
 def create_app(db_path=None):
-    path = str(db_path or os.getenv("CANTEENGO_DB", "data/canteengo.sqlite3"))
+    path = database_target(db_path)
     dummy_hash = password_hash(secrets.token_urlsafe(32))
 
     @asynccontextmanager
@@ -90,6 +89,8 @@ def create_app(db_path=None):
 
     @api.get("/api/health")
     def health():
+        with connect(path) as db:
+            db.execute("SELECT 1")
         return {"status": "ok", "service": "CanteenGo"}
 
     @api.post("/api/auth/register", status_code=201)
@@ -100,7 +101,7 @@ def create_app(db_path=None):
             with connect(path) as db:
                 db.execute("INSERT INTO users(username,password_hash,role) VALUES (?,?,'student')",
                            (body.username, encoded))
-        except sqlite3.IntegrityError:
+        except INTEGRITY_ERRORS:
             raise HTTPException(409, "Username already registered")
         return {"username": body.username, "role": "student"}
 
@@ -108,9 +109,10 @@ def create_app(db_path=None):
     def login(body: Credentials):
         now = int(time.time())
         with connect(path) as db:
+            begin_login_write(db)
             db.execute("DELETE FROM login_attempts WHERE attempted_at<=?", (now - 60,))
-            attempts = db.execute("SELECT COUNT(*) FROM login_attempts WHERE username=?",
-                                  (body.username,)).fetchone()[0]
+            attempts = db.execute("SELECT COUNT(*) AS attempts FROM login_attempts WHERE username=?",
+                                  (body.username,)).fetchone()["attempts"]
             if attempts >= 5:
                 raise HTTPException(429, "Too many attempts; wait one minute",
                                     headers={"Retry-After": "60"})
@@ -140,7 +142,7 @@ def create_app(db_path=None):
     @api.get("/api/menu")
     def menu(user=Depends(current_user)):
         with connect(path) as db:
-            rows = db.execute("SELECT * FROM foods ORDER BY rowid").fetchall()
+            rows = db.execute("SELECT * FROM foods ORDER BY id").fetchall()
         return [dict(row) for row in rows if row["stock"] > 0]
 
     @api.post("/api/orders", status_code=201)
@@ -152,7 +154,7 @@ def create_app(db_path=None):
             raise HTTPException(422, "Combine duplicate food items")
         with connect(path) as db:
             # Lock before reading stock; simultaneous orders cannot oversell.
-            db.execute("BEGIN IMMEDIATE")
+            begin_order_write(db)
             previous = db.execute("SELECT * FROM orders WHERE user_id=? AND request_id=?",
                                   (user["id"], str(body.request_id))).fetchone()
             if previous:
@@ -185,16 +187,16 @@ def create_app(db_path=None):
     def orders(user=Depends(current_user)):
         with connect(path) as db:
             if user["role"] == "student":
-                rows = db.execute("SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC,rowid DESC",
+                rows = db.execute("SELECT * FROM orders WHERE user_id=? ORDER BY created_at DESC,number DESC",
                                   (user["id"],)).fetchall()
             else:
-                rows = db.execute("SELECT * FROM orders ORDER BY created_at DESC,rowid DESC").fetchall()
+                rows = db.execute("SELECT * FROM orders ORDER BY created_at DESC,number DESC").fetchall()
         return [order_json(row) for row in rows]
 
     @api.patch("/api/orders/{number}/status")
     def advance(number: str, body: StatusChange, user=Depends(staff)):
         with connect(path) as db:
-            db.execute("BEGIN IMMEDIATE")
+            begin_order_write(db)
             row = db.execute("SELECT * FROM orders WHERE number=?", (number,)).fetchone()
             if row is None:
                 raise HTTPException(404, "Order not found")

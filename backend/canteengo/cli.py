@@ -2,9 +2,8 @@
 import argparse
 from getpass import getpass
 import os
-import sqlite3
 from .app import app
-from .database import connect, initialize
+from .database import connect, initialize, INTEGRITY_ERRORS
 from .schemas import Credentials
 from .security import password_hash
 
@@ -25,7 +24,7 @@ def main():
         with connect(path) as db:
             db.execute("INSERT INTO users(username,password_hash,role) VALUES (?,?,?)",
                        (credentials.username, password_hash(credentials.password), args.role))
-    except sqlite3.IntegrityError:
+    except INTEGRITY_ERRORS:
         parser.error("Username already exists")
     print(f"Created {args.role} account: {credentials.username}")
 

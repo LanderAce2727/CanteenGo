@@ -1,4 +1,26 @@
-# Development verification — 2026-11-14
+# Development verification
+
+## 2026-11-28 — Free hosting and database compatibility
+
+Command from backend:
+`$env:PYTHONDONTWRITEBYTECODE='1'; ./.venv/Scripts/python.exe -m pytest -q -p no:cacheprovider --tb=short`
+
+Corrective full run: **48 passed, 37 skipped, 1 warning in 140.55 seconds**, exit 0.
+The 37 skipped cases require TEST_DATABASE_URL for live PostgreSQL integration.
+The passes cover the 37 existing API cases on SQLite plus 11 database configuration,
+parameter binding, lock selection and TLS option tests (PostgreSQL connections mocked).
+This does not verify PostgreSQL SQL execution, live Neon connectivity, deployed HTTPS,
+cloud persistence or phone-to-cloud behavior.
+
+The initial run exposed a seed INSERT placeholder count error (37 setup errors);
+the INSERT was corrected before the successful full rerun.
+Installed new dependency psycopg[binary] 3.3.9 successfully.
+Existing Starlette/httpx deprecation warning remains; dependencies were not upgraded.
+No Android changes were made for this backend task, and no APK rebuild was run.
+
+Cloud acceptance checklist: see DEPLOYMENT.md.
+
+## Historical development verification — 2026-11-14
 
 Synthetic data only. These are development checks, not the outside-rater evaluation.
 
